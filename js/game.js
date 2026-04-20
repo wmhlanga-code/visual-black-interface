@@ -9,6 +9,7 @@ const GameEngine = (() => {
   // ── State ─────────────────────────────────────────────────
 
   const state = {
+    country:              'us',        // active country code
     currentEraIndex:      0,
     investigatedIds:      new Set(),   // community IDs already investigated
     discoveredConnections: new Set(),  // communityKey strings found in >1 era
@@ -17,6 +18,8 @@ const GameEngine = (() => {
     eraUnlocked:          [true, false, false, false],
     awaitingAck:          false,       // block new investigations while overlay is open
     phase:                'intro',     // 'intro' | 'playing' | 'complete'
+    score:                0,           // current session points
+    totalConnectionEvents: 0,          // # of recurring-community discovery events
     quiz: {
       active:        false,
       eraId:         null,
@@ -28,6 +31,88 @@ const GameEngine = (() => {
       answered:      false          // whether current question has been answered
     }
   };
+
+  // ── Country selection ─────────────────────────────────────
+
+  function selectCountry(code) {
+    if (!COUNTRY_CONFIG[code]) return;
+    state.country = code;
+    setCountryData(code);
+
+    // Reset all per-country state
+    state.currentEraIndex       = 0;
+    state.investigatedIds       = new Set();
+    state.discoveredConnections = new Set();
+    state.firstAppearance       = {};
+    state.communityKeyCount     = {};
+    state.eraUnlocked           = Array(ERAS.length).fill(false);
+    state.eraUnlocked[0]        = true;
+    state.awaitingAck           = false;
+    state.score                 = 0;
+    state.totalConnectionEvents = 0;
+    state.quiz = {
+      active: false, eraId: null, questions: [],
+      currentIndex: 0, score: 0, totalScore: 0,
+      totalAnswered: 0, answered: false
+    };
+
+    UIManager.hideOverlay('country-overlay');
+    UIManager.showIntro(code);
+  }
+
+  // ── Points ────────────────────────────────────────────────
+
+  function addPoints(n) {
+    state.score += n;
+    UIManager.updateProgress(state);
+    UIManager.bumpScore();
+  }
+
+  // ── Journalist rating ─────────────────────────────────────
+
+  function getJournalistRating() {
+    const cfg      = COUNTRY_CONFIG[state.country];
+    const maxScore = cfg ? cfg.maxScore : 800;
+    const pct      = maxScore > 0 ? state.score / maxScore : 0;
+    if (pct >= 0.85) return { title: 'Exposé', desc: 'Exceptional field work. You uncovered the full architecture of harm.' };
+    if (pct >= 0.60) return { title: 'Investigator', desc: 'Strong documentation. Most key patterns identified.' };
+    return { title: 'Correspondent', desc: 'The story is filed. More digging would have revealed the full picture.' };
+  }
+
+  // ── Win condition check ───────────────────────────────────
+
+  function checkWinCondition() {
+    const cfg = COUNTRY_CONFIG[state.country];
+    if (!cfg) return false;
+    if (cfg.winCondition === 'us') {
+      return state.discoveredConnections.size >= 6;
+    }
+    if (cfg.winCondition === 'uk') {
+      // Find Ella's community (isKeyEvidence) and check it's investigated
+      const ellaFound = ERAS.some(era =>
+        era.communities.some(c => c.isKeyEvidence && state.investigatedIds.has(c.id))
+      );
+      return state.totalConnectionEvents >= 3 && ellaFound;
+    }
+    if (cfg.winCondition === 'za') {
+      return state.discoveredConnections.size >= 2;
+    }
+    return false;
+  }
+
+  // ── localStorage score persistence ───────────────────────
+
+  function saveScore() {
+    const key  = `tpr_best_${state.country}`;
+    const best = getBestScore(state.country);
+    if (state.score > best) {
+      try { localStorage.setItem(key, String(state.score)); } catch(_) {}
+    }
+  }
+
+  function getBestScore(code) {
+    try { return parseInt(localStorage.getItem(`tpr_best_${code}`) || '0', 10); } catch(_) { return 0; }
+  }
 
   // ── Entry point ───────────────────────────────────────────
 
@@ -44,6 +129,7 @@ const GameEngine = (() => {
     const era = ERAS[state.currentEraIndex];
     UIManager.renderEra(era, state);
     MapManager.loadEra(era, state.investigatedIds);
+    MapManager.setZoomVisible(true);
     UIManager.updateProgress(state);
   }
 
@@ -61,6 +147,7 @@ const GameEngine = (() => {
     state.investigatedIds.add(communityId);
     UIManager.flipCard(communityId, community, eraData);
     MapManager.revealMarker(communityId, eraData);
+    addPoints(10);   // 10 pts per card investigated
     UIManager.updateProgress(state);
 
     // ── Recurring community check ──────────────────────────
@@ -76,6 +163,11 @@ const GameEngine = (() => {
       } else {
         // Recurring! Show discovery overlay
         state.discoveredConnections.add(key);
+        state.totalConnectionEvents++;
+
+        // Award recurring bonus
+        const recurringBonus = count === 2 ? 50 : count === 3 ? 100 : 200;
+        addPoints(recurringBonus);
 
         const prevEraId    = state.firstAppearance[key];
         const prevEra      = ERAS.find(e => e.id === prevEraId);
@@ -107,6 +199,7 @@ const GameEngine = (() => {
   function acknowledgeConnection() {
     state.awaitingAck = false;
     UIManager.hideOverlay('connection-overlay');
+    MapManager.setZoomVisible(true);
     _checkEraCompletion();
   }
 
@@ -192,13 +285,25 @@ const GameEngine = (() => {
     const isLast = state.currentEraIndex === ERAS.length - 1;
     if (isLast) {
       state.phase = 'complete';
-      UIManager.showFinalReveal(state);
+      saveScore();
+      UIManager.showFinalReveal(state, getJournalistRating(), checkWinCondition(), getBestScore(state.country));
       MapManager.showAllConnections();
     } else {
       state.currentEraIndex++;
       state.eraUnlocked[state.currentEraIndex] = true;
       _renderCurrentEra();
     }
+  }
+
+  // ── Return to country selection ───────────────────────────
+
+  function returnToCountrySelect() {
+    // Hide game (use inline style — author CSS display:flex overrides the [hidden] attr)
+    document.getElementById('game').style.display = 'none';
+    ['final-overlay', 'era-complete-overlay', 'connection-overlay', 'quiz-overlay'].forEach(id => {
+      UIManager.hideOverlay(id);
+    });
+    UIManager.showCountrySelect();
   }
 
   // ── Switch to a different era tab ─────────────────────────
@@ -216,6 +321,8 @@ const GameEngine = (() => {
 
   return {
     startGame,
+    selectCountry,
+    returnToCountrySelect,
     investigateCommunity,
     acknowledgeConnection,
     advanceEra,
@@ -223,6 +330,10 @@ const GameEngine = (() => {
     answerQuestion,
     nextQuestion,
     switchEra,
+    addPoints,
+    getBestScore,
+    getJournalistRating,
+    checkWinCondition,
     getState: () => state
   };
 

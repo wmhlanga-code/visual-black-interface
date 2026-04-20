@@ -23,7 +23,9 @@ const MapManager = (() => {
   // ── Load an era's markers ─────────────────────────────────
 
   function loadEra(eraData, investigatedIds) {
-    // Remove existing markers
+    // Remove existing connection lines and markers
+    connectionLines.forEach(l => map.removeLayer(l));
+    connectionLines = [];
     markers.forEach(m => map.removeLayer(m));
     markers.clear();
 
@@ -105,7 +107,7 @@ const MapManager = (() => {
     markers.clear();
 
     // Collect all investigated communities from all eras
-    const state = GameEngine.getState();
+    const state  = GameEngine.getState();
 
     ERAS.forEach(era => {
       era.communities.forEach(c => {
@@ -138,7 +140,16 @@ const MapManager = (() => {
       }
     });
 
-    map.flyTo([38, -96], 4, { duration: 1.6 });
+    const cfg = COUNTRY_CONFIG[state.country] || COUNTRY_CONFIG.us;
+    map.flyTo(cfg.mapCenter, cfg.mapZoom, { duration: 1.6 });
+  }
+
+  // ── Zoom to a country's default view ─────────────────────
+
+  function zoomToCountry(code) {
+    const cfg = COUNTRY_CONFIG[code];
+    if (!cfg || !map) return;
+    map.flyTo(cfg.mapCenter, cfg.mapZoom, { duration: 1.2 });
   }
 
   // ── Private helpers ───────────────────────────────────────
@@ -180,5 +191,16 @@ const MapManager = (() => {
 
   // ── Public API ────────────────────────────────────────────
 
-  return { init, loadEra, revealMarker, drawConnectionLine, showAllConnections };
+  // ── Show / hide zoom control ──────────────────────────────
+
+  function setZoomVisible(visible) {
+    if (!map || !map.zoomControl) return;
+    if (visible) {
+      map.zoomControl.addTo(map);
+    } else {
+      map.zoomControl.remove();
+    }
+  }
+
+  return { init, loadEra, revealMarker, drawConnectionLine, showAllConnections, zoomToCountry, setZoomVisible };
 })();

@@ -38,7 +38,7 @@ html, body {
 #intro-overlay {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: 150;
   background: var(--bg);
   display: flex;
   align-items: center;
@@ -46,6 +46,8 @@ html, body {
   padding: 24px;
   background-image: radial-gradient(ellipse at 50% 30%, rgba(245,166,35,0.10) 0%, transparent 65%);
 }
+
+#intro-overlay[hidden] { display: none; }
 
 .intro-inner {
   max-width: 640px;
@@ -1118,5 +1120,293 @@ html, body {
 
   .intro-stats {
     gap: 20px;
+  }
+}
+
+/* ─── COUNTRY SELECTION ──────────────────────────────────── */
+
+#country-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 24px;
+}
+
+#country-overlay[hidden] { display: none; }
+
+.country-select-inner {
+  max-width: 780px;
+  width: 100%;
+  text-align: center;
+}
+
+.country-select-eyebrow {
+  font-size: 0.65rem;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.country-select-title {
+  font-family: 'Georgia', serif;
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.country-select-title span {
+  color: var(--gold);
+}
+
+.country-select-subtitle {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+
+.country-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.country-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 26px 20px 22px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.country-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s ease;
+}
+
+.country-card:hover {
+  border-color: rgba(245,166,35,0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+.country-card:hover::before {
+  transform: scaleX(1);
+}
+
+.country-card-flag {
+  font-size: 2.2rem;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.country-card-name {
+  font-family: 'Georgia', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.country-card-tagline {
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.55;
+  margin-bottom: 16px;
+}
+
+.country-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.country-meta-pill {
+  font-size: 0.62rem;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: rgba(245,166,35,0.08);
+  border: 1px solid rgba(245,166,35,0.2);
+  border-radius: 2px;
+  padding: 3px 7px;
+}
+
+.country-best-score {
+  font-size: 0.65rem;
+  font-family: 'Courier New', monospace;
+  color: var(--muted);
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.country-best-score span {
+  color: var(--gold);
+}
+
+/* ─── SCORE COUNTER ──────────────────────────────────────── */
+
+.score-counter {
+  color: var(--gold) !important;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.05em;
+  transition: color 0.3s;
+}
+
+.score-counter.bump {
+  animation: scoreBump 0.35s ease;
+}
+
+@keyframes scoreBump {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.25); color: #ffc040; }
+  100% { transform: scale(1); }
+}
+
+/* ─── KEY EVIDENCE card ──────────────────────────────────── */
+
+.card.key-evidence {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 1px rgba(245,158,11,0.3), 0 0 18px rgba(245,158,11,0.08);
+}
+
+.card.key-evidence .card-prompt {
+  color: #f59e0b;
+}
+
+.stamp-key-evidence {
+  background: rgba(245,158,11,0.12);
+  border: 1px solid rgba(245,158,11,0.4);
+  color: #f59e0b;
+  font-size: 0.58rem;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+/* ─── JOURNALIST RATING (final screen) ──────────────────── */
+
+.journalist-rating-block {
+  margin: 28px 0;
+  padding: 22px 28px;
+  background: rgba(245,166,35,0.05);
+  border: 1px solid rgba(245,166,35,0.2);
+  border-radius: 6px;
+  text-align: center;
+}
+
+.rating-label {
+  font-size: 0.62rem;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.rating-title {
+  font-family: 'Georgia', serif;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+
+.rating-desc {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.win-condition-block {
+  margin-bottom: 24px;
+  padding: 18px 24px;
+  border-left: 3px solid var(--gold);
+  background: rgba(245,166,35,0.04);
+  border-radius: 0 4px 4px 0;
+  text-align: left;
+}
+
+.win-condition-title {
+  font-family: 'Georgia', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 5px;
+}
+
+.win-condition-desc {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.win-condition-block.not-met {
+  border-left-color: var(--border);
+  opacity: 0.6;
+}
+
+.score-summary-line {
+  font-size: 0.8rem;
+  font-family: 'Courier New', monospace;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.score-summary-line strong {
+  color: var(--gold);
+  font-size: 1rem;
+}
+
+.final-country-btn {
+  margin-top: 14px;
+  display: inline-block;
+  padding: 9px 22px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.final-country-btn:hover {
+  border-color: var(--gold-dim);
+  color: var(--text);
+}
+
+@media (max-width: 640px) {
+  .country-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .country-select-title {
+    font-size: 1.6rem;
   }
 }

@@ -9,8 +9,11 @@
 </head>
 <body>
 
-  <!-- Full-screen intro overlay -->
-  <div id="intro-overlay">
+  <!-- Country selection overlay (first screen) -->
+  <div id="country-overlay"></div>
+
+  <!-- Full-screen intro overlay (hidden until country is chosen) -->
+  <div id="intro-overlay" hidden>
     <div class="intro-inner">
       <div class="eyebrow">An Investigation · Environmental Justice</div>
       <h1>The Pattern <span>Repeats</span></h1>
@@ -32,6 +35,7 @@
         <div class="prog-item" id="doc-counter">0 / 20 documented</div>
         <div class="prog-item connection-counter" id="conn-counter">0 / 6 patterns found</div>
         <div class="prog-item quiz-counter" id="quiz-counter">Quiz: 0 / 8</div>
+        <div class="prog-item score-counter" id="score-counter">0 pts</div>
       </div>
     </header>
 
