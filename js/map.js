@@ -179,14 +179,19 @@ const MapManager = (() => {
   }
 
   function _onMarkerClick(community, eraData) {
-    // Highlight the corresponding card
-    const card = document.getElementById('card-' + community.id);
-    if (card) {
-      card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      card.style.transition = 'box-shadow 0.3s';
-      card.style.boxShadow = '0 0 0 2px #f5a623';
-      setTimeout(() => { card.style.boxShadow = ''; }, 1200);
+    // On mobile, switch to cards view so the card is visible
+    if (window.innerWidth <= 768 && typeof GameEngine !== 'undefined') {
+      GameEngine.setMobileView('cards');
     }
+    requestAnimationFrame(() => {
+      const card = document.getElementById('card-' + community.id);
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        card.style.transition = 'box-shadow 0.3s';
+        card.style.boxShadow = '0 0 0 2px #f5a623';
+        setTimeout(() => { card.style.boxShadow = ''; }, 1200);
+      }
+    });
   }
 
   // ── Public API ────────────────────────────────────────────
@@ -202,5 +207,9 @@ const MapManager = (() => {
     }
   }
 
-  return { init, loadEra, revealMarker, drawConnectionLine, showAllConnections, zoomToCountry, setZoomVisible };
+  function invalidateSize() {
+    if (map) map.invalidateSize();
+  }
+
+  return { init, loadEra, revealMarker, drawConnectionLine, showAllConnections, zoomToCountry, setZoomVisible, invalidateSize };
 })();

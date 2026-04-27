@@ -136,6 +136,7 @@ html, body {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -1089,37 +1090,154 @@ html, body {
   opacity: 1;
 }
 
+/* ─── MOBILE VIEW TOGGLE (hidden on desktop) ────────────── */
+
+#mobile-tabs {
+  display: none;
+}
+
+.mobile-tab {
+  flex: 1;
+  padding: 10px 8px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-weight: 700;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.mobile-tab.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+
 /* ─── RESPONSIVE ─────────────────────────────────────────── */
 
 @media (max-width: 768px) {
+  /* Header: allow progress items to wrap */
+  #game-header {
+    height: auto;
+    min-height: 48px;
+    padding: 6px 12px;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .game-title {
+    font-size: 0.88rem;
+  }
+
+  #header-progress {
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+
+  .prog-item {
+    font-size: 0.62rem;
+    padding: 2px 7px;
+  }
+
+  /* Era nav: bigger touch targets, tighter tabs */
+  .era-tab {
+    min-width: 100px;
+    padding: 8px 10px 7px;
+  }
+
+  .tab-title {
+    font-size: 0.8rem;
+  }
+
+  /* Era desc bar: compact */
+  #era-desc-bar {
+    font-size: 0.76rem;
+    padding: 7px 12px;
+  }
+
+  /* Mobile view toggle */
+  #mobile-tabs {
+    display: flex;
+    flex-shrink: 0;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Main area: column with tabs controlling visibility */
   #main-area {
     flex-direction: column;
-    overflow: auto;
+    overflow: hidden;
   }
 
+  /* Cards panel: fills remaining space, scrollable */
   #cards-panel {
     width: 100%;
-    max-height: 360px;
+    flex: 1;
+    max-height: none;
     border-right: none;
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
+    border-bottom: none;
+    overflow-y: auto;
   }
 
+  /* Map panel: hidden by default */
   #map-panel {
-    height: 320px;
-    flex-shrink: 0;
+    flex: none;
+    height: 0;
+    overflow: hidden;
+  }
+
+  /* Map view: show map, hide cards */
+  #main-area.view-map #cards-panel {
+    flex: none;
+    height: 0;
+    overflow: hidden;
+  }
+
+  #main-area.view-map #map-panel {
+    flex: 1;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* Overlays: tighter padding */
+  .overlay {
+    padding: 16px;
   }
 
   .conn-panel {
-    padding: 24px 20px;
+    padding: 22px 18px;
+    max-width: 100%;
   }
 
   .era-complete-panel {
-    padding: 28px 20px;
+    padding: 24px 20px;
+    max-width: 100%;
   }
 
+  .quiz-panel {
+    padding: 22px 18px;
+    max-width: 100%;
+  }
+
+  /* Intro */
   .intro-stats {
     gap: 20px;
+  }
+
+  /* Toast: stretch across bottom of screen */
+  #toast-container {
+    right: 12px;
+    left: 12px;
+    bottom: 12px;
+  }
+
+  .toast {
+    max-width: 100%;
+    width: 100%;
   }
 }
 
@@ -1408,5 +1526,130 @@ html, body {
   }
   .country-select-title {
     font-size: 1.6rem;
+  }
+  /* Allow country select to scroll on small phones */
+  #country-overlay {
+    align-items: flex-start;
+    overflow-y: auto;
+  }
+  .country-select-inner {
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+  /* Intro overlay: scrollable too */
+  #intro-overlay {
+    align-items: flex-start;
+    overflow-y: auto;
+  }
+  .intro-inner {
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Header: ultra compact */
+  .game-title {
+    font-size: 0.78rem;
+  }
+
+  /* Hide quiz counter to save header space */
+  #quiz-counter {
+    display: none;
+  }
+
+  /* Era nav: minimal */
+  .era-tab {
+    min-width: 72px;
+    padding: 6px 7px 5px;
+  }
+
+  .tab-wave {
+    font-size: 0.58rem;
+  }
+
+  .tab-title {
+    font-size: 0.7rem;
+  }
+
+  .tab-years {
+    display: none;
+  }
+
+  /* Era desc bar: minimal */
+  #era-desc-bar {
+    padding: 5px 10px;
+    font-size: 0.72rem;
+  }
+
+  .era-hint {
+    font-size: 0.64rem;
+  }
+
+  /* Overlays: very compact, scrollable if needed */
+  .overlay {
+    padding: 12px;
+    overflow-y: auto;
+    align-items: flex-start;
+  }
+
+  .conn-panel {
+    padding: 18px 14px;
+    margin: auto;
+    max-width: 100%;
+  }
+
+  .conn-name {
+    font-size: 1.1rem;
+  }
+
+  .conn-text {
+    font-size: 0.82rem;
+  }
+
+  .era-complete-panel {
+    padding: 18px 14px;
+    margin: auto;
+    max-width: 100%;
+  }
+
+  .ec-title {
+    font-size: 1.3rem;
+  }
+
+  .quiz-panel {
+    padding: 16px 14px;
+    margin: auto;
+    max-width: 100%;
+  }
+
+  .quiz-question {
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+  }
+
+  .quiz-option {
+    padding: 9px 10px;
+    font-size: 0.8rem;
+  }
+
+  .quiz-header {
+    margin-bottom: 14px;
+  }
+
+  /* Intro */
+  .intro-body {
+    font-size: 0.95rem;
+    margin-bottom: 24px;
+  }
+
+  /* Country select */
+  .country-card {
+    padding: 18px 14px 14px;
+  }
+
+  .country-select-subtitle {
+    font-size: 0.8rem;
+    margin-bottom: 24px;
   }
 }

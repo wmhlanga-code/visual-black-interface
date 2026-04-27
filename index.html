@@ -43,6 +43,10 @@
     <div id="era-desc-bar"><!-- populated by UIManager --></div>
 
     <main id="main-area">
+      <div id="mobile-tabs">
+        <button class="mobile-tab active" id="tab-cards" onclick="GameEngine.setMobileView('cards')">Evidence</button>
+        <button class="mobile-tab" id="tab-map" onclick="GameEngine.setMobileView('map')">Map</button>
+      </div>
       <div id="cards-panel"><!-- populated by UIManager --></div>
       <div id="map-panel"><div id="map"></div></div>
     </main>

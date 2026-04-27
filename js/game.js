@@ -133,11 +133,34 @@ const GameEngine = (() => {
     UIManager.updateProgress(state);
   }
 
+  // ── Mobile view toggle ────────────────────────────────────
+
+  function setMobileView(view) {
+    const mainArea = document.getElementById('main-area');
+    const tabCards = document.getElementById('tab-cards');
+    const tabMap   = document.getElementById('tab-map');
+    if (!mainArea) return;
+
+    if (view === 'map') {
+      mainArea.classList.add('view-map');
+      if (tabCards) tabCards.classList.remove('active');
+      if (tabMap)   tabMap.classList.add('active');
+      requestAnimationFrame(() => MapManager.invalidateSize());
+    } else {
+      mainArea.classList.remove('view-map');
+      if (tabCards) tabCards.classList.add('active');
+      if (tabMap)   tabMap.classList.remove('active');
+    }
+  }
+
   // ── Core action: investigate a community ──────────────────
 
   function investigateCommunity(communityId) {
     // Guard: already done, or blocked by an open overlay
     if (state.investigatedIds.has(communityId) || state.awaitingAck) return;
+
+    // On mobile, switch to cards view so the flip animation is visible
+    if (window.innerWidth <= 768) setMobileView('cards');
 
     const eraData   = ERAS[state.currentEraIndex];
     const community = eraData.communities.find(c => c.id === communityId);
@@ -330,6 +353,7 @@ const GameEngine = (() => {
     answerQuestion,
     nextQuestion,
     switchEra,
+    setMobileView,
     addPoints,
     getBestScore,
     getJournalistRating,
